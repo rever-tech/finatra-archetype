@@ -66,7 +66,7 @@
   <!-- ===================================================== -->
 
   <!-- Per-Package Config -->
-  <logger name="sdn.finatra" level="info"/>
+  <logger name="template" level="info"/>
 
   <!-- Root Config -->
   <root level="${log_level:-INFO}">

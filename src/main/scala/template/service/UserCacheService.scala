@@ -16,7 +16,7 @@ trait UserCacheService{
   def getUser(id: UserID): Future[UserInfo]
 }
 
-class UserCacheServiceImpl @Inject()(cacheRepository: CacheRepository[UserID, UserInfo]) extends UserCacheService {
+case class UserCacheServiceImpl @Inject()(cacheRepository: CacheRepository[UserID, UserInfo]) extends UserCacheService {
 
   override def addUser(id: UserID, info: UserInfo): Unit = {
     Future {

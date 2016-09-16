@@ -12,12 +12,12 @@ trait CacheRepository[K, V] {
   def get(k: K): V
 }
 
-class OnMemoryCacheRepository extends CacheRepository[AnyRef, AnyRef] {
-  val cache = new mutable.HashMap[AnyRef, AnyRef]
+class OnMemoryCacheRepository[K,V] extends CacheRepository[K, V] {
+  val cache = new mutable.HashMap[K, V]
 
-  override def put(k: AnyRef, v: AnyRef): Unit = cache.put(k, v)
+  override def put(k: K, v: V): Unit = cache.put(k, v)
 
-  override def get(k: AnyRef): AnyRef = cache.get(k)
+  override def get(k: K): V = cache.get(k).get
 }
 
 abstract class RedisCacheRepository extends CacheRepository[ByteArray, ByteArray] {
