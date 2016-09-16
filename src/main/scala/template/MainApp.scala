@@ -8,7 +8,6 @@ import com.twitter.finatra.http.routing.HttpRouter
   **/
 object MainApp extends HttpServer {
 
-
   override protected def configureHttp(router: HttpRouter): Unit = {
     router.filter[CommonFilters]
   }
