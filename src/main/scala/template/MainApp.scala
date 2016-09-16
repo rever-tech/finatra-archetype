@@ -1,4 +1,4 @@
-package rever.template
+package template
 
 import com.twitter.finatra.http.HttpServer
 import com.twitter.finatra.http.filters.CommonFilters
