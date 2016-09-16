@@ -23,7 +23,7 @@ object MainApp extends HttpServer with ThriftServer {
   }
 
   override protected def configureThrift(router: ThriftRouter): Unit = {
-    router.filter[CommonFilters]
+    router
       .add[CacheController]
   }
 }
