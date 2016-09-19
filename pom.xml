@@ -14,7 +14,7 @@
         <scala.version>2.11.7</scala.version>
         <finatra.version>2.2.0</finatra.version>
 
-        <mainClass>rever.template.MainApp</mainClass>
+        <mainClass>rever.template.Server</mainClass>
         <buildPropertiesPackage>rever.template</buildPropertiesPackage>
     </properties>
     <dependencies>
@@ -418,7 +418,7 @@
                     <archive>
                         <manifest>
                             <addClasspath>true</addClasspath>
-                            <mainClass>rever.template.MainApp</mainClass>
+                            <mainClass>rever.template.Server</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>

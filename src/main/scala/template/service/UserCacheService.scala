@@ -11,8 +11,9 @@ import scala.collection.mutable
 /**
   * Created by SangDang on 9/16/16.
   */
-trait UserCacheService{
+trait UserCacheService {
   def addUser(id: UserID, info: UserInfo)
+
   def getUser(id: UserID): Future[UserInfo]
 }
 

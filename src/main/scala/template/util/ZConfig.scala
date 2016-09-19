@@ -1,12 +1,10 @@
-package z.common
+package template.util
 
-import java.io.{File, OutputStream, PrintStream}
+import java.io.{File, PrintStream}
 
-import com.typesafe.config.{ConfigList, ConfigMemorySize, ConfigObject, ConfigResolveOptions, _}
+import com.typesafe.config._
 
-import collection.JavaConverters._
-import collection.JavaConversions._
-import scala.Predef
+import scala.collection.JavaConversions._
 
 /**
   * Created by SangDang on 9/15/16.

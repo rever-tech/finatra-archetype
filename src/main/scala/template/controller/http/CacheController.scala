@@ -2,9 +2,12 @@ package template.controller.http
 
 import javax.inject.{Inject, Singleton}
 
+import com.twitter.finagle.http.{Request, Status}
 import com.twitter.finatra.http.Controller
-import template.domain.{GetCacheRequest, PutCacheRequest}
+import com.twitter.finatra.request
+import template.domain.{GetCacheRequest, PutCacheRequest, UserID}
 import template.service.UserCacheService
+import com.twitter.finatra.utils.FuturePools
 
 
 /**
@@ -15,13 +18,15 @@ import template.service.UserCacheService
 class CacheController @Inject()(userCacheService: UserCacheService) extends Controller {
   post("/addUser") { request: PutCacheRequest =>
     userCacheService.addUser(request.userID, request.userInfo)
+    response.ok()
   }
   get("/getUser") {
     request: GetCacheRequest =>
       for {
-        userInfo <- userCacheService.getUser(request.userID)
+        userInfo <- userCacheService.getUser(UserID(request.userID))
       } yield {
         response.ok(userInfo)
       }
   }
+
 }

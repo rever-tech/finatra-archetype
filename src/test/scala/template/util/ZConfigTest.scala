@@ -1,7 +1,6 @@
-package z.common
+package template.util
 
 import com.twitter.inject.Test
-import com.twitter.inject.server.{EmbeddedTwitterServer, FeatureTest}
 import com.typesafe.config.ConfigException
 import org.scalatest.Assertions
 
@@ -16,12 +15,12 @@ class ZConfigTest extends Test{
     }
   }
   "[Int Test]" should {
-    "get exist value successful" in {
+    "get value successful" in {
       Assertions.assertResult(ZConfig.getInt("ZConfigTest.test_int.var"))(1)
     }
-    "get non-exist value should throw exception" in {
+    "throw exception if get non-exist key" in {
       Assertions.intercept[ConfigException.Missing]{
-        ZConfig.getInt("Not-EXist")
+        ZConfig.getInt("Non_Exist_Key")
       }
     }
     "get non-exist value should return default value" in {

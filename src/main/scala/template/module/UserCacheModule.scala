@@ -2,6 +2,7 @@ package template.module
 
 import javax.inject.{Inject, Singleton}
 
+import com.google.inject.Provides
 import com.twitter.inject.TwitterModule
 import template.repository.OnMemoryCacheRepository
 import template.service.{UserCacheService, UserCacheServiceImpl}
@@ -11,6 +12,7 @@ import template.service.{UserCacheService, UserCacheServiceImpl}
   */
 object UserCacheModule extends TwitterModule {
   @Singleton
+  @Provides
   def providesUserCacheService(): UserCacheService =
     new UserCacheServiceImpl(new OnMemoryCacheRepository())
 
