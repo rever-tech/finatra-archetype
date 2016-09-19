@@ -15,6 +15,13 @@
 # $2: Application profile: production/development (default is production)
 #
 #
+OS="`uname`"
+case $OS in
+	'Darwin')
+		alias readlink=greadlink
+		;;
+esac
+
 ENTRY_PATH=`readlink -f $0`
 PROJECT_HOME=`dirname $ENTRY_PATH`
 CMD_DIR=cmd
@@ -26,8 +33,8 @@ cd $PROJECT_HOME
 
 ################################################################################
 #setup Application environment
-APP_NAME=slsjtemplate
-APP_VER="1.0"
+APP_NAME=scala-template
+#APP_VER="1.0"
 #JAR_NAME= #define if JAR_NAME is a customized name which is not based on APP_NAME & APP_VER
 
 ################################################################################

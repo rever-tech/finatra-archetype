@@ -1,8 +1,8 @@
 #!/bin/sh
 
-JAVA_HOME="/zserver/java/`ls /zserver/java | grep jdk | grep x64 | tail -1`"
-JAVA="$JAVA_HOME/bin/java"
-
+#JAVA_HOME="/zserver/java/`ls /zserver/java | grep jdk | grep x64 | tail -1`"
+#JAVA="$JAVA_HOME/bin/java"
+JAVA="java"
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # calculateHeapSizes
 calculateHeapSizes()
