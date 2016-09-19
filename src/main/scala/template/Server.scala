@@ -1,6 +1,9 @@
 package template
 
 
+import java.net.InetSocketAddress
+
+import com.twitter.app.Flag
 import com.twitter.finagle.thrift
 import com.twitter.finatra.http.HttpServer
 import com.twitter.finatra.http.filters.CommonFilters
@@ -11,6 +14,7 @@ import template.controller.http
 import template.controller.http.HealthController
 import template.controller.thrift.CacheController
 import template.module.UserCacheModule
+import template.util.ZConfig
 
 /**
   * Created by SangDang on 9/8/
@@ -18,9 +22,11 @@ import template.module.UserCacheModule
 object MainApp extends Server
 class Server extends HttpServer with ThriftServer {
 
-  override protected def defaultFinatraHttpPort: String = ":8080"
+  override protected def defaultFinatraHttpPort: String = ZConfig.getString("server.http.port",":8080")
 
-  override protected def defaultFinatraThriftPort: String = ":8082"
+  override protected def defaultFinatraThriftPort: String = ZConfig.getString("server.thrift.port",":8082")
+
+  override protected def disableAdminHttpServer: Boolean = ZConfig.getBoolean("server.admin.disable",true)
 
   override val modules = Seq(UserCacheModule)
 
