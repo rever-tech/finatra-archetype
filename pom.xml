@@ -147,15 +147,9 @@
 
         <resources>
             <resource>
-                <directory>src/main/resources</directory>
+                <directory>conf</directory>
             </resource>
         </resources>
-
-        <testResources>
-            <testResource>
-                <directory>src/test/resources</directory>
-            </testResource>
-        </testResources>
 
         <plugins>
             <plugin>
@@ -267,44 +261,44 @@
                 </executions>
             </plugin>
 
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>2.5</version>
-                <configuration>
-                    <outputDirectory>${basedir}/dist</outputDirectory>
-                    <archive>
-                        <manifest>
-                            <addClasspath>true</addClasspath>
-                            <mainClass>${mainClass}</mainClass>
-                            <classpathPrefix>libs/</classpathPrefix>
-                            <!--<classpathLayoutType>custom</classpathLayoutType>-->
-                            <!--<customClasspathLayout>-->
-                                <!--${artifact.groupId}-${artifact.artifactId}-${artifact.version}${dashClassifier?}.${artifact.extension}-->
-                            <!--</customClasspathLayout>-->
-                        </manifest>
-                    </archive>
-                </configuration>
-            </plugin>
+            <!--<plugin>-->
+                <!--<groupId>org.apache.maven.plugins</groupId>-->
+                <!--<artifactId>maven-jar-plugin</artifactId>-->
+                <!--<version>2.5</version>-->
+                <!--<configuration>-->
+                    <!--<outputDirectory>${basedir}/dist</outputDirectory>-->
+                    <!--<archive>-->
+                        <!--<manifest>-->
+                            <!--<addClasspath>true</addClasspath>-->
+                            <!--<mainClass>${mainClass}</mainClass>-->
+                            <!--<classpathPrefix>libs/</classpathPrefix>-->
+                            <!--&lt;!&ndash;<classpathLayoutType>custom</classpathLayoutType>&ndash;&gt;-->
+                            <!--&lt;!&ndash;<customClasspathLayout>&ndash;&gt;-->
+                                <!--&lt;!&ndash;${artifact.groupId}-${artifact.artifactId}-${artifact.version}${dashClassifier?}.${artifact.extension}&ndash;&gt;-->
+                            <!--&lt;!&ndash;</customClasspathLayout>&ndash;&gt;-->
+                        <!--</manifest>-->
+                    <!--</archive>-->
+                <!--</configuration>-->
+            <!--</plugin>-->
             <!-- copy project jar & lib to dist -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <version>2.10</version>
-                <executions>
-                    <execution>
-                        <id>copy-dependencies</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>copy-dependencies</goal>
-                        </goals>
-                        <configuration>
-                            <includeScope>runtime</includeScope>
-                            <outputDirectory>${basedir}/dist/lib/</outputDirectory>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
+            <!--<plugin>-->
+                <!--<groupId>org.apache.maven.plugins</groupId>-->
+                <!--<artifactId>maven-dependency-plugin</artifactId>-->
+                <!--<version>2.10</version>-->
+                <!--<executions>-->
+                    <!--<execution>-->
+                        <!--<id>copy-dependencies</id>-->
+                        <!--<phase>package</phase>-->
+                        <!--<goals>-->
+                            <!--<goal>copy-dependencies</goal>-->
+                        <!--</goals>-->
+                        <!--<configuration>-->
+                            <!--<includeScope>runtime</includeScope>-->
+                            <!--<outputDirectory>${basedir}/dist/lib/</outputDirectory>-->
+                        <!--</configuration>-->
+                    <!--</execution>-->
+                <!--</executions>-->
+            <!--</plugin>-->
             <!-- <plugin>
               <groupId>com.twitter</groupId>
               <artifactId>maven-build-properties-plugin</artifactId>
@@ -369,6 +363,8 @@
                     <descriptorRefs>
                         <descriptorRef>jar-with-dependencies</descriptorRef>
                     </descriptorRefs>
+                    <appendAssemblyId>false</appendAssemblyId>
+                    <outputDirectory>${basedir}/dist</outputDirectory>
                 </configuration>
                 <executions>
                     <execution>
