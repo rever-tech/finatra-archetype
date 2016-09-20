@@ -67,7 +67,7 @@ fi
 #run-log file
 RUNLOG_FILE="$APP_NAME.log"
 if [ "x$RUNLOG_FILE" != "x" ]; then
-RUNLOG_PATH="$TMP_DIR/$RUNLOG_FILE"
+RUNLOG_PATH="$LOG_DIR/$RUNLOG_FILE"
 fi
 
 testLaunchService() {
@@ -165,7 +165,7 @@ case "$1" in
 		fi
 		##ok:stop it
 		kill -9 `cat $PID_PATH`
-		rm $PID_PATH -f
+		rm -f $PID_PATH
 		echo "Stopped."
 		echo
 		;;

@@ -1,10 +1,6 @@
 package template
 
 
-import java.net.InetSocketAddress
-
-import com.twitter.app.Flag
-import com.twitter.finagle.thrift
 import com.twitter.finatra.http.HttpServer
 import com.twitter.finatra.http.filters.CommonFilters
 import com.twitter.finatra.http.routing.HttpRouter
