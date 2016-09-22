@@ -7,7 +7,7 @@ Finatra Scala Template
 Usage:
 	
 
-		git clone git@github.com:zkidkid/scala-template.git
+		git clone git@github.com:rever-tech/finatra-archetype.git
 		cd <path>/scala-template
 		mvn install archetype:update-local-catalog
 	
