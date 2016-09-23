@@ -21,7 +21,7 @@ Usage:
 		cd projectx
 		mvn package
 		chmod +x runservice
-		./runservice start -Dmode=development
+		./runservice start development
 		curl -XGET localhost:8080/ping
 		./runservice stop
 		
