@@ -8,7 +8,7 @@ Usage:
 	
 
 		git clone git@github.com:rever-tech/finatra-archetype.git
-		cd <path>/scala-template
+		cd <path>/finatra-archetype
 		mvn install archetype:update-local-catalog
 	
 		cd <path>
@@ -26,4 +26,4 @@ Usage:
 		./runservice stop
 		
 
-
+Note: in MacOS please install core utils `brew install coreutils` before execute runservice script
