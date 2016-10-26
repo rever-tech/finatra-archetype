@@ -1,0 +1,267 @@
+#!/bin/bash
+
+OS="`uname`"
+case $OS in
+	'Darwin')
+		alias readlink=greadlink
+		;;
+esac
+
+ENTRY_PATH=`readlink -f $0`
+PROJECTS_DIR=`dirname $ENTRY_PATH`
+
+IS_CLEAN="false"
+SERVICE_NAME=`ls $JAR_DIR/ |grep .jar | tail -1 | cut -d'.' -f1`
+DOCKER_IMAGE=r3v3r/project-runner:latest
+PID_DIR=${PROJECTS_DIR}/${SERVICE_NAME}/logs
+CONTAINER_INFO=${PID_DIR}/${SERVICE_NAME}.cinfo
+mkdir -p ${PID_DIR}
+
+PUBLISH_PORTS=()
+EXPOSE=()
+
+function stop {
+    if [ ! -e "$CONTAINER_INFO" ]; then
+        echo "Application already stopped!"
+		echo
+		exit 1
+    fi
+    IFS=$'\r\n' command eval  'INFO=($(cat ${CONTAINER_INFO}))'
+    read -a CONTAINER_ID <<< "${INFO[3]}"
+    CONTAINER_ID=${CONTAINER_ID[2]}
+
+    RUNNING=$(docker inspect --format="{{ .State.Running }}" $CONTAINER_ID 2> /dev/null)
+
+    if [ $? -eq 1 ]; then
+        echo "$CONTAINER does not exist."
+        echo "Application already stopped!"
+        exit 3
+    fi
+
+    if [ "$RUNNING" == "false" ]; then
+        echo "Application already stopped!"
+        if [ "$IS_CLEAN" == "true" ]; then
+            echo "Cleaning container..."
+            docker rm $CONTAINER_ID
+            echo "Done"
+            exit 0
+        fi
+        exit 2
+    fi
+    docker stop $CONTAINER_ID
+    if [ "$IS_CLEAN" == "true" ]; then
+        echo "Cleaning container..."
+        docker rm $CONTAINER_ID
+        echo "Done"
+    fi
+    exit 0
+}
+
+function startNew {
+    while [[ $# -gt 1 ]]
+    do
+    key="$1"
+    case $key in
+        -p|--publish)
+        IFS=':'
+        read -a PORTS <<< "$2"
+        if [ ${#PORTS[@]} -eq 2 ]; then
+            # ext_port:int_port
+            PUBLISH_PORTS+=("-p $2")
+            EXPLOSE+=("${PORTS[2]}")
+        elif [ ${#PORTS[@]} -eq 3 ]; then
+            # ext_ip:ext_port:int_port
+            PUBLISH_PORTS+=("-p $2")
+            EXPOSE+=("--expose ${PORTS[3]}")
+        fi
+        shift # past argument
+        ;;
+        *)
+                # unknown option
+        ;;
+    esac
+    shift # past argument or value
+    done
+
+    DATE=$(date +%Y-%m-%d:%H:%M:%S)
+    CID=$(docker run --restart always -d -v ${PROJECTS_DIR}/${SERVICE_NAME}:/project:rw "${PUBLISH_PORTS[@]}" "${EXPOSE[@]}" --name ${SERVICE_NAME} ${DOCKER_IMAGE} startservice ${MODE})
+    echo "Container created at: $DATE" | tee $CONTAINER_INFO
+    echo "Container started with these informations:" | tee -a $CONTAINER_INFO
+    echo "  - Name: ${SERVICE_NAME}" | tee -a $CONTAINER_INFO
+    echo "  - ID:   ${CID}" | tee -a $CONTAINER_INFO
+}
+
+# mode isfresh
+function start {
+    IS_FRESH="false"
+    if [ -e "$CONTAINER_INFO" ]; then
+        IFS=$'\r\n' command eval  'INFO=($(cat ${CONTAINER_INFO}))'
+        read -a CONTAINER_ID <<< "${INFO[3]}"
+        CONTAINER_ID=${CONTAINER_ID[2]}
+
+        RUNNING=$(docker inspect --format="{{ .State.Running }}" $CONTAINER_ID 2> /dev/null)
+
+        if [ $? -eq 0 ]; then
+            if [ "$RUNNING" == "true" ]; then
+                echo "Application is running!"
+                exit 1
+            fi
+            if [ "$IS_FRESH" == "false" ]; then
+                #Start previous container
+                docker start $CONTAINER_ID
+                echo "Started with container id ${CONTAINER_ID}"
+                DATE=$(date +%Y-%m-%d:%H:%M:%S)
+                echo "Container restart at: ${DATE}" >> ${CONTAINER_INFO}
+                exit 0
+            else
+                #Clean old container
+                docker rm $CONTAINER_ID
+            fi
+        fi
+        #Delete old container info file
+        rm -rf ${CONTAINER_INFO}
+    fi
+    startNew $@
+}
+
+function printConsoleLog() {
+    if [ -e "$CONTAINER_INFO" ]; then
+        IFS=$'\r\n' command eval  'INFO=($(cat ${CONTAINER_INFO}))'
+        read -a CONTAINER_ID <<< "${INFO[3]}"
+        CONTAINER_ID=${CONTAINER_ID[2]}
+
+        RUNNING=$(docker inspect --format="{{ .State.Running }}" $CONTAINER_ID 2> /dev/null)
+
+        if [ $? -eq 0 ]; then
+            if [ "$RUNNING" == "false" ]; then
+                echo "Application already stopped!"
+                exit 1
+            fi
+            exec docker logs "$1" ${CONTAINER_ID}
+        else
+            echo "Container does not exist!"
+            exit 1
+        fi
+    fi
+}
+
+printUsage() {
+	echo "Usage: `basename $ENTRY_PATH` start|stop|restart|status|log [production|development] [fresh]"
+	echo
+	echo " The first option is service action:"
+	echo " - start: launch a docker container run the program"
+	echo " - stop: stop docker container"
+	echo " - restart: restart or recreate docker container"
+	echo " - status: docker container status"
+	echo " - log: print console log. Use `-f` to follow the growth of log"
+	echo
+	echo " The second option is application's profile:"
+	echo " - production(default): will load profile of production (commonly defined in \"$CMD_DIR/production-service-env.sh\")"
+	echo " - development: will load profile of development (commonly defined in \"$CMD_DIR/development-service-env.sh\")"
+	echo
+	echo " The third option is used for restart or stop action:"
+	echo " if this option is specified:"
+	echo " - stop action stop docker container and also remove (delete) it."
+	echo " - restart action stop docker container, remove it and then create new container for program."
+	echo
+}
+
+function printStatus {
+    #Print container info in pretty format
+    if [ -e "$CONTAINER_INFO" ]; then
+        IFS=$'\r\n' command eval  'INFO=($(cat ${CONTAINER_INFO}))'
+        read -a CONTAINER_ID <<< "${INFO[3]}"
+        CONTAINER_ID=${CONTAINER_ID[2]}
+
+        RUNNING=$(docker inspect --format="{{ .State.Running }}" $CONTAINER_ID 2> /dev/null)
+
+        if [ $? -eq 0 ]; then
+            if [ "$RUNNING" == "false" ]; then
+                echo "Application already stopped!"
+            elif [ "$RUNNING" == "true" ]; then
+                echo "Application is running!"
+            fi
+            INFO_STR=$(docker inspect --format=" Container ID: {{ .Id }} \\n\
+            Created at: {{ .Created }} \\n\
+            Started at: {{ .State.StartedAt }} \\n\
+            Finished at: {{ .State.FinishedAt }} \\n\
+            Cmd: {{ .Path }} {{ .Args }} \\n\
+            Is running: {{ .State.Running }} \\n\
+            Kill when OOM: {{ .State.OOMKilled }} \\n\
+            Mapping port: {{ .NetworkSettings.Ports }} \\n\
+            Volumes: {{ .HostConfig.Binds }} \\n\
+            Restart policy: {{ .HostConfig.RestartPolicy}}" ${CONTAINER_ID})
+            echo "~~~~~~~~~~~Container information~~~~~~~~~~~~"
+            echo -e ${INFO_STR}
+            echo
+            exit 0
+        else
+            echo "[WARN] Pid file exist but container does not exist."
+        fi
+    fi
+    echo "Application is stopped!"
+    #check container name
+    RUNNING=$(docker inspect --format="{{ .State.Running }}" ${SERVICE_NAME} 2> /dev/null)
+    if [ $? -eq 0 ]; then
+        echo "[WARN] A container exist that have same name with this service `${SERVICE_NAME}`"
+        INFO_STR=$(docker inspect --format=" Container ID: {{ .Id }} \\n\
+            Created at: {{ .Created }} \\n\
+            Started at: {{ .State.StartedAt }} \\n\
+            Finished at: {{ .State.FinishedAt }} \\n\
+            Cmd: {{ .Path }} {{ .Args }} \\n\
+            Is running: {{ .State.Running }} \\n\
+            Kill when OOM: {{ .State.OOMKilled }} \\n\
+            Mapping port: {{ .NetworkSettings.Ports }} \\n\
+            Volumes: {{ .HostConfig.Binds }} \\n\
+            Restart policy: {{ .HostConfig.RestartPolicy}}" ${SERVICE_NAME})
+        echo "~~~~~~~~~~~Container information~~~~~~~~~~~~"
+        echo -e ${INFO_STR}
+    fi
+    echo
+}
+
+if [ $# -lt 1 ]; then
+    printUsage
+    exit 1
+fi
+
+ACTION=$1
+shift
+MODE="production"
+if [[ "$1" =~ ^(production|development|staging)$ ]]; then
+    MODE="$1"
+    shift
+fi
+if [[ "$1" == "fresh" ]]; then
+    IS_CLEAN="true"
+    shift
+fi
+
+case "$ACTION" in
+	start)
+		start $@
+		;;
+	stop)
+		stop $@
+		;;
+	restart)
+	    if [[ "$IS_CLEAN" == "true" ]]; then
+	        FRESH="fresh"
+	    fi
+		$ENTRY_PATH stop $FRESH
+		echo "Waiting..."
+		sleep 5
+		$ENTRY_PATH start $MODE $IS_CLEAN
+		;;
+	status)
+		printStatus
+		echo
+		;;
+	log)
+	    printConsoleLog $@
+        ;;
+	*)
+		printHelp
+		echo
+		exit 1
+esac

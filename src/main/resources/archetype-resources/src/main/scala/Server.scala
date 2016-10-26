@@ -1,4 +1,4 @@
-package ${packageName}
+package ${package}
 
 
 import com.twitter.finatra.http.HttpServer
@@ -6,11 +6,11 @@ import com.twitter.finatra.http.filters.CommonFilters
 import com.twitter.finatra.http.routing.HttpRouter
 import com.twitter.finatra.thrift.ThriftServer
 import com.twitter.finatra.thrift.routing.ThriftRouter
-import ${packageName}.controller.http
-import ${packageName}.controller.http.HealthController
-import ${packageName}.controller.thrift.CacheController
-import ${packageName}.module.UserCacheModule
-import ${packageName}.util.ZConfig
+import ${package}.controller.http
+import ${package}.controller.http.HealthController
+import ${package}.controller.thrift.CacheController
+import ${package}.module.UserCacheModule
+import ${package}.util.ZConfig
 
 /**
   * Created by SangDang on 9/8/

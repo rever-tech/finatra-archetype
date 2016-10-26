@@ -16,7 +16,7 @@ Usage:
 			-DarchetypeArtifactId=finatra-archetype 		\
 			-DarchetypeVersion=1.0 -DgroupId=company 		\
 			-DartifactId=projectx 							\
-			-DpackageName=company.projectx  				\
+			-Dpackage=company.projectx  				\
 			-DarchetypeCatalog=local
 		cd projectx
 		mvn package

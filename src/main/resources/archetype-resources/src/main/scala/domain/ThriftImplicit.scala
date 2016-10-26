@@ -1,7 +1,7 @@
-package ${packageName}.domain
+package ${package}.domain
 
 import com.twitter.util.Future
-import ${packageName}.domain.thrift.{TUserID, TUserInfo}
+import ${package}.domain.thrift.{TUserID, TUserInfo}
 
 /**
   * Created by SangDang on 9/16/16.

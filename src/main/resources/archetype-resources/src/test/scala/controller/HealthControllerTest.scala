@@ -1,9 +1,9 @@
-package ${packageName}.controller
+package ${package}.controller
 
 import com.twitter.finatra.http.EmbeddedHttpServer
 import com.twitter.finatra.thrift.ThriftClient
 import com.twitter.inject.server.{EmbeddedTwitterServer, FeatureTest}
-import ${packageName}.Server
+import ${package}.Server
 import com.twitter.finagle.http.Status
 /**
   * Created by SangDang on 9/18/16.

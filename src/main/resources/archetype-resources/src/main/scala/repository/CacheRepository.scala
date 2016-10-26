@@ -1,4 +1,4 @@
-package ${packageName}.repository
+package ${package}.repository
 
 import com.twitter.io.Buf.ByteArray
 
