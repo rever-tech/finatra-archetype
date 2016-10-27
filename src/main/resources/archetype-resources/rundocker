@@ -8,12 +8,13 @@ case $OS in
 esac
 
 ENTRY_PATH=`readlink -f $0`
-PROJECTS_DIR=`dirname $ENTRY_PATH`
-
+echo ${ENTRY_PATH}
+PROJECT_DIR=`dirname $ENTRY_PATH`
+JAR_DIR=${PROJECT_DIR}/dist
 IS_CLEAN="false"
 SERVICE_NAME=`ls $JAR_DIR/ |grep .jar | tail -1 | cut -d'.' -f1`
 DOCKER_IMAGE=r3v3r/project-runner:latest
-PID_DIR=${PROJECTS_DIR}/${SERVICE_NAME}/logs
+PID_DIR=${PROJECT_DIR}/logs
 CONTAINER_INFO=${PID_DIR}/${SERVICE_NAME}.cinfo
 mkdir -p ${PID_DIR}
 
@@ -68,11 +69,11 @@ function startNew {
         if [ ${#PORTS[@]} -eq 2 ]; then
             # ext_port:int_port
             PUBLISH_PORTS+=("-p $2")
-            EXPLOSE+=("${PORTS[2]}")
+            EXPOSE+=("${PORTS[1]}")
         elif [ ${#PORTS[@]} -eq 3 ]; then
             # ext_ip:ext_port:int_port
             PUBLISH_PORTS+=("-p $2")
-            EXPOSE+=("--expose ${PORTS[3]}")
+            EXPOSE+=("--expose ${PORTS[2]}")
         fi
         shift # past argument
         ;;
@@ -84,7 +85,12 @@ function startNew {
     done
 
     DATE=$(date +%Y-%m-%d:%H:%M:%S)
-    CID=$(docker run --restart always -d -v ${PROJECTS_DIR}/${SERVICE_NAME}:/project:rw "${PUBLISH_PORTS[@]}" "${EXPOSE[@]}" --name ${SERVICE_NAME} ${DOCKER_IMAGE} startservice ${MODE})
+    TMP_PORTS="${PUBLISH_PORTS[@]}"
+    TMP_EXPOSE="${EXPOSE[@]}"
+    unset IFS
+    DOCKER_CMD="docker run --restart always -d -v ${PROJECT_DIR}:/project:rw ${TMP_PORTS} ${TMP_EXPOSE} --name ${SERVICE_NAME} ${DOCKER_IMAGE} startservice ${MODE}"
+    echo $DOCKER_CMD
+    CID=$(docker run --restart always -d -v ${PROJECT_DIR}:/project:rw ${PUBLISH_PORTS[@]} ${EXPOSE[@]} --name ${SERVICE_NAME} ${DOCKER_IMAGE} startservice ${MODE})
     echo "Container created at: $DATE" | tee $CONTAINER_INFO
     echo "Container started with these informations:" | tee -a $CONTAINER_INFO
     echo "  - Name: ${SERVICE_NAME}" | tee -a $CONTAINER_INFO
@@ -187,6 +193,7 @@ function printStatus {
             Finished at: {{ .State.FinishedAt }} \\n\
             Cmd: {{ .Path }} {{ .Args }} \\n\
             Is running: {{ .State.Running }} \\n\
+            Is restarting: {{ .State.Restarting }} \\n\
             Kill when OOM: {{ .State.OOMKilled }} \\n\
             Mapping port: {{ .NetworkSettings.Ports }} \\n\
             Volumes: {{ .HostConfig.Binds }} \\n\
@@ -194,6 +201,8 @@ function printStatus {
             echo "~~~~~~~~~~~Container information~~~~~~~~~~~~"
             echo -e ${INFO_STR}
             echo
+            echo "Tail log"
+            docker logs --tail 10 ${CONTAINER_ID}
             exit 0
         else
             echo "[WARN] Pid file exist but container does not exist."
@@ -203,19 +212,23 @@ function printStatus {
     #check container name
     RUNNING=$(docker inspect --format="{{ .State.Running }}" ${SERVICE_NAME} 2> /dev/null)
     if [ $? -eq 0 ]; then
-        echo "[WARN] A container exist that have same name with this service `${SERVICE_NAME}`"
+        echo "[WARN] A container exist that have same name with this service \`${SERVICE_NAME}\`"
         INFO_STR=$(docker inspect --format=" Container ID: {{ .Id }} \\n\
             Created at: {{ .Created }} \\n\
             Started at: {{ .State.StartedAt }} \\n\
             Finished at: {{ .State.FinishedAt }} \\n\
             Cmd: {{ .Path }} {{ .Args }} \\n\
             Is running: {{ .State.Running }} \\n\
+            Is restarting: {{ .State.Restarting }} \\n\
             Kill when OOM: {{ .State.OOMKilled }} \\n\
             Mapping port: {{ .NetworkSettings.Ports }} \\n\
             Volumes: {{ .HostConfig.Binds }} \\n\
             Restart policy: {{ .HostConfig.RestartPolicy}}" ${SERVICE_NAME})
         echo "~~~~~~~~~~~Container information~~~~~~~~~~~~"
         echo -e ${INFO_STR}
+        echo
+        echo "Tail log"
+        docker logs --tail 10 ${SERVICE_NAME}
     fi
     echo
 }
