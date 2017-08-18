@@ -1,4 +1,4 @@
-package ${packageName}.controller
+package ${package}.controller
 
 import java.net.InetSocketAddress
 
@@ -11,11 +11,11 @@ import com.twitter.finagle.http.Status.Ok
 import com.twitter.finagle.thrift.ThriftClientFramedCodec
 import com.twitter.util.Future
 import org.scalatest.Assertions
-import ${packageName}.Server
-import ${packageName}.domain.UserID
-import ${packageName}.domain.thrift.{TUserID, TUserInfo}
-import ${packageName}.service.TUserCacheService.FinagledClient
-import ${packageName}.service.{TUserCacheService, UserCacheService}
+import ${package}.Server
+import ${package}.domain.UserID
+import ${package}.domain.thrift.{TUserID, TUserInfo}
+import ${package}.service.TUserCacheService.FinagledClient
+import ${package}.service.{TUserCacheService, UserCacheService}
 
 /**
   * Created by SangDang on 9/18/16.

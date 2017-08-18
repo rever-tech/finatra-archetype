@@ -1,4 +1,4 @@
-package ${packageName}.domain
+package ${package}.domain
 
 import com.twitter.finatra.request.QueryParam
 

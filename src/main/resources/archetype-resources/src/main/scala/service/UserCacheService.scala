@@ -1,10 +1,10 @@
-package ${packageName}.service
+package ${package}.service
 
 import javax.inject.Inject
 
 import com.twitter.util.Future
-import ${packageName}.domain.{UserID, UserInfo}
-import ${packageName}.repository.CacheRepository
+import ${package}.domain.{UserID, UserInfo}
+import ${package}.repository.CacheRepository
 
 import scala.collection.mutable
 

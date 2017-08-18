@@ -1,4 +1,4 @@
-package ${packageName}.controller.http
+package ${package}.controller.http
 
 import com.twitter.finagle.http.Request
 import com.twitter.finatra.http.Controller

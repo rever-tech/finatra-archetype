@@ -1,4 +1,4 @@
-#@namespace scala ${packageName}.domain.thrift
+#@namespace scala ${package}.domain.thrift
 
 struct TUserID{
     1:string id

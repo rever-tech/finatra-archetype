@@ -1,4 +1,4 @@
-package ${packageName}.util
+package ${package}.util
 
 import java.io.{File, PrintStream}
 

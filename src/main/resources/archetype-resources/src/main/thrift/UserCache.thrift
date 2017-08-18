@@ -1,4 +1,4 @@
-#@namespace scala ${packageName}.service
+#@namespace scala ${package}.service
 include "UserCacheDT.thrift"
 
 service TUserCacheService {
