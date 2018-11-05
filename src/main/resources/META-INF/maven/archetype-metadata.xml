@@ -31,7 +31,6 @@
             <includes>
                 <include>.gitignore</include>
                 <include>runservice</include>
-                <include>rundocker</include>
             </includes>
         </fileSet>
 
