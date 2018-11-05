@@ -12,7 +12,7 @@
         <maven.compiler.target>1.8</maven.compiler.target>
         <encoding>UTF-8</encoding>
         <scala.version>2.11.8</scala.version>
-        <finatra.version>2.2.0</finatra.version>
+        <finatra.version>18.4.0</finatra.version>
 
         <mainClass>${package}.MainApp</mainClass>
     </properties>
@@ -119,13 +119,14 @@
             <groupId>org.scalatest</groupId>
             <artifactId>scalatest_2.11</artifactId>
             <scope>test</scope>
-            <version>2.2.4</version>
+            <version>3.0.5</version>
         </dependency>
         <dependency>
             <groupId>org.specs2</groupId>
             <artifactId>specs2_2.11</artifactId>
+            <type>pom</type>
             <scope>test</scope>
-            <version>2.3.12</version>
+            <version>3.7</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.scala-lang</groupId>
@@ -213,14 +214,15 @@
                 </configuration>
             </plugin>
 
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.18.1</version>
-                <configuration>
-                    <skipTests>true</skipTests>
-                </configuration>
-            </plugin>
+            <!--<plugin>-->
+                <!--<groupId>org.apache.maven.plugins</groupId>-->
+                <!--<artifactId>maven-surefire-plugin</artifactId>-->
+                <!--<version>2.18.1</version>-->
+                <!--<configuration>-->
+                    <!--<skipTests>true</skipTests>-->
+                <!--</configuration>-->
+            <!--</plugin>-->
+
             <plugin>
                 <groupId>org.scalatest</groupId>
                 <artifactId>scalatest-maven-plugin</artifactId>
@@ -250,7 +252,7 @@
             <plugin>
                 <groupId>com.twitter</groupId>
                 <artifactId>scrooge-maven-plugin</artifactId>
-                <version>4.8.0</version>
+                <version>18.4.0</version>
                 <configuration>
                     <language>scala</language>
                     <!-- default is scala, can also be java -->
