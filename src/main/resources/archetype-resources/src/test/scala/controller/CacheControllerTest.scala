@@ -1,34 +1,27 @@
 package ${package}.controller
 
-import java.net.InetSocketAddress
-
-import com.twitter.finagle.builder.ClientBuilder
 import com.twitter.finagle.http.Status
+import com.twitter.finagle.http.Status.Ok
 import com.twitter.finatra.http.EmbeddedHttpServer
 import com.twitter.finatra.thrift.ThriftClient
 import com.twitter.inject.server.FeatureTest
-import com.twitter.finagle.http.Status.Ok
-import com.twitter.finagle.thrift.ThriftClientFramedCodec
-import com.twitter.util.Future
-import org.scalatest.Assertions
 import ${package}.Server
-import ${package}.domain.UserID
 import ${package}.domain.thrift.{TUserID, TUserInfo}
-import ${package}.service.TUserCacheService.FinagledClient
-import ${package}.service.{TUserCacheService, UserCacheService}
+import org.scalatest.Assertions
+import ${package}.service.TUserCacheService
 
 /**
   * Created by SangDang on 9/18/16.
   */
 class CacheControllerTest extends FeatureTest {
   override protected val server = new EmbeddedHttpServer(twitterServer = new Server) with ThriftClient
+  val thriftClient = server.thriftClient[TUserCacheService.MethodPerEndpoint]("client for test")
 
-  "[HTTP] Put cache" should {
-    "successfull" in {
-      server.httpPost(
-        path = "/addUser",
-        postBody =
-          """
+  test("[HTTP] Put cache # successful") {
+    server.httpPost(
+      path = "/addUser",
+      postBody =
+        """
             {
               "user_id":{
                 "id":"1"
@@ -43,15 +36,16 @@ class CacheControllerTest extends FeatureTest {
               }
             }
           """.stripMargin,
-        andExpect = Ok
-      )
-    }
-    "be able to get back" in {
-      server.httpGet(
-        path = "/getUser?user_id=1",
-        andExpect = Status.Ok,
-        withJsonBody =
-          """
+      andExpect = Ok
+    )
+  }
+
+  test("[HTTP] Put cache # be able to get back") {
+    server.httpGet(
+      path = "/getUser?user_id=1",
+      andExpect = Status.Ok,
+      withJsonBody =
+        """
             {
               "user_id": {
                 "id": "1"
@@ -62,41 +56,49 @@ class CacheControllerTest extends FeatureTest {
             }
           """.stripMargin
 
-      )
-    }
-
-  }
-  "[Thrift] put cache" should {
-    lazy val client = server.thriftClient[TUserCacheService[Future]](clientId = "1")
-    "successful" in {
-      client.addUser(TUserInfo(TUserID("101"), "test", 100, "male"))
-      client.getUser(TUserID("101")).onSuccess(userInfo => {
-        Assertions.assert(userInfo.userId.equals("101"))
-        Assertions.assert(userInfo.username.equals("test"))
-        Assertions.assert(userInfo.age.equals(100))
-        Assertions.assert(userInfo.sex.equals("male"))
-      }).onFailure(fn => throw fn)
-
-    }
+    )
   }
 
-  "[Thrift] external put cache" should {
-    lazy val clientService = ClientBuilder()
-      .hosts(Seq(new InetSocketAddress("localhost", server.thriftExternalPort)))
-      .codec(ThriftClientFramedCodec())
-      .hostConnectionLimit(1)
-      .build()
-    val client = new FinagledClient(clientService)
-    "successful" in {
-      client.addUser(TUserInfo(TUserID("111"), "t_test", 101, "female"))
-      client.getUser(TUserID("111")).onSuccess(userInfo => {
-        Assertions.assert(userInfo.userId.equals("111"))
-        Assertions.assert(userInfo.username.equals("t_test"))
-        Assertions.assert(userInfo.age.equals(101))
-        Assertions.assert(userInfo.sex.equals("female"))
-      }).onFailure(fn => throw fn)
+  test("[Thrift] put cache # successful") {
+    thriftClient.addUser(TUserInfo(TUserID("101"), "test", 100, "male"))
+    thriftClient.getUser(TUserID("101")).onSuccess(userInfo => {
+      Assertions.assert(userInfo.userId._1.equals("101"))
+      Assertions.assert(userInfo.username.equals("test"))
+      Assertions.assert(userInfo.age.equals(100))
+      Assertions.assert(userInfo.sex.equals("male"))
+    }).onFailure(fn => throw fn)
+  }
 
-    }
+  test("[Thrift] external put cache # successful") {
+
+    val client = newClient("localhost", server.thriftExternalPort)
+
+    client.addUser(TUserInfo(TUserID("111"), "t_test", 101, "female"))
+    client.getUser(TUserID("111")).onSuccess(userInfo => {
+      Assertions.assert(userInfo.userId._1.equals("111"))
+      Assertions.assert(userInfo.username.equals("t_test"))
+      Assertions.assert(userInfo.age.equals(101))
+      Assertions.assert(userInfo.sex.equals("female"))
+    }).onFailure(fn => throw fn)
+  }
+
+  def newClient(host: String, port: Int, label: String = "") = {
+    import com.twitter.conversions.time._
+    import com.twitter.finagle.Thrift
+    import com.twitter.finagle.service.{Backoff, RetryBudget}
+    import com.twitter.finagle.thrift.ClientId
+    import com.twitter.util.Duration
+
+    Thrift.client
+      .withRequestTimeout(Duration.fromSeconds(5))
+      //        .withSessionQualifier.noFailFast
+      //        .withSessionQualifier.noFailureAccrual
+      .withSessionPool.maxSize(10)
+      .withSessionPool.minSize(1)
+      .withRetryBudget(RetryBudget())
+      .withRetryBackoff(Backoff.exponentialJittered(5.seconds, 32.seconds))
+      .withClientId(ClientId(label))
+      .build[TUserCacheService.MethodPerEndpoint](s"$host:$port", label)
   }
 
 }
