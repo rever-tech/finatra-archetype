@@ -18,7 +18,7 @@ import com.twitter.finatra.utils.FuturePools
 class CacheController @Inject()(userCacheService: UserCacheService) extends Controller {
   post("/addUser") { request: PutCacheRequest =>
     userCacheService.addUser(request.userID, request.userInfo)
-    response.ok()
+    response.ok
   }
   get("/getUser") {
     request: GetCacheRequest =>
